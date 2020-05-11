@@ -100,7 +100,7 @@ class Normalize(nn.Module):
         return (img - self.mean) / self.std
 
 # style modeling and losses
-content_layers_default = ['conv_4']
+content_layers_default = ['conv_5']
 style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 
 def get_style_model_and_losses(cnn, normalization_mean, normalization_std,
