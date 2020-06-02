@@ -2,3 +2,4 @@ data/
 _data/
 result/
 .DS_Store
+.ipynb_checkpoints
