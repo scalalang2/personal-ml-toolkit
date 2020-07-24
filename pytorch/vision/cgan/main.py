@@ -14,7 +14,7 @@ batch_size = 100
 latent_dim = 100
 num_classes = 10
 num_epochs = 20
-learning_rate = 0.001
+learning_rate = 0.0002
 
 transformer = transforms.Compose([
     transforms.ToTensor()
@@ -42,13 +42,13 @@ class CGAN_D(nn.Module):
         super(CGAN_D, self).__init__()
 
         self.model = nn.Sequential(
-            nn.Linear(784 + num_classes, 256),
+            nn.Linear(784 + num_classes, 512),
             nn.ReLU(),
             nn.Dropout(0.4),
-            nn.Linear(256, 128),
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Dropout(0.4),
-            nn.Linear(128, 1),
+            nn.Linear(256, 1),
             nn.Sigmoid()
         )
 
@@ -109,25 +109,25 @@ for epoch in range(num_epochs):
         valid = torch.FloatTensor(images.size(0), 1).fill_(1.0)
         fake = torch.FloatTensor(images.size(0), 1).fill_(0.0)
 
+        # generator loss
+        optimizer_G.zero_grad()
         real_images = images
         fake_images = Model_G(z, z_labels)
         
-        # generator loss
-        output = Model_D(fake_images, labels)
+        output = Model_D(fake_images, z_labels)
         g_loss = criterion(output, valid)
         
-        optimizer_G.zero_grad()
         g_loss.backward()
         optimizer_G.step()
 
         # discriminator loss
+        optimizer_D.zero_grad()
         real_output = Model_D(real_images, labels)
         fake_output = Model_D(fake_images.detach(), z_labels)
         real_loss = criterion(real_output, valid)
         fake_loss = criterion(fake_output, fake)
-        d_loss = (real_loss + fake_loss) / 2
 
-        optimizer_D.zero_grad()
+        d_loss = (real_loss + fake_loss) / 2
         d_loss.backward()
         optimizer_D.step()
 
@@ -140,8 +140,9 @@ num_tests = 10
 with torch.no_grad():
     for i in range(1, 9):
         z = torch.Tensor(np.random.normal(0, 1, (num_tests, latent_dim)))
+        z_labels = torch.LongTensor(np.random.randint(0, num_classes, batch_size))
 
-        fake_image = Model_G(z, torch.LongTensor([i] * num_tests))
+        fake_image = Model_G(z, z_labels)
         images = fake_image.reshape(-1, 28, 28)
 
         plt.imshow(images[0], cmap='gray')
