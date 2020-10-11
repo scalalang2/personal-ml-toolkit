@@ -128,3 +128,19 @@ with torch.no_grad():
 print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
 
 # TO-DO: 각 클래스별 정확도 계산하기
+total_classes = np.zeros(10)
+correct_classes = np.zeros(10)
+
+with torch.no_grad():
+    for i, data in enumerate(testloader, 0):
+        images, labels = data
+        outputs = net(images)
+        _, predicted = torch.max(outputs.data, 1)
+        
+        for index, data in enumerate(predicted):
+            total_classes[labels[index]] += 1
+            if data == labels[index]:
+                correct_classes[data] += 1
+
+print(total_classes)
+print(correct_classes)
